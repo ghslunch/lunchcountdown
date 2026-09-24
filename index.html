@@ -34,10 +34,8 @@
             padding: 20px;
         }
 
-        /* All text effects apply to ALL text */
-        #title,
-        #countdown,
-        #target {
+        /* ONLY THE TIMER gets outline and effects */
+        #countdown {
             -webkit-text-stroke: var(--outline-width) var(--outline-color);
             text-shadow: var(--text-effect);
         }
@@ -207,9 +205,7 @@
 
 <body>
 
-    <!-- =========================
-         MAIN COUNTDOWN
-         ========================= -->
+    <!-- MAIN COUNTDOWN -->
 
     <div id="container">
 
@@ -228,9 +224,7 @@
     </div>
 
 
-    <!-- =========================
-         SETTINGS BUTTON
-         ========================= -->
+    <!-- SETTINGS BUTTON -->
 
     <button
         id="settingsButton"
@@ -241,9 +235,7 @@
     </button>
 
 
-    <!-- =========================
-         SETTINGS PANEL
-         ========================= -->
+    <!-- SETTINGS PANEL -->
 
     <div id="settingsPanel">
 
@@ -394,12 +386,12 @@
         </div>
 
 
-        <!-- TEXT OUTLINE -->
+        <!-- TIMER OUTLINE -->
 
         <div class="control">
 
             <label>
-                Text Outline
+                Timer Outline
             </label>
 
             <input
@@ -427,12 +419,12 @@
         </div>
 
 
-        <!-- TEXT SHADOW -->
+        <!-- TIMER SHADOW -->
 
         <div class="control">
 
             <label>
-                Text Shadow
+                Timer Shadow
             </label>
 
             <input
@@ -460,12 +452,12 @@
         </div>
 
 
-        <!-- TEXT GLOW -->
+        <!-- TIMER GLOW -->
 
         <div class="control">
 
             <label>
-                Text Glow
+                Timer Glow
             </label>
 
             <input
@@ -571,19 +563,8 @@
 
             const now = new Date();
 
-            let target =
-                new Date(now);
+            let target = new Date(now);
 
-
-            /*
-                Wednesday = 3
-
-                Wednesday:
-                12:30 PM
-
-                Every other day:
-                12:08 PM
-            */
 
             if (now.getDay() === 3) {
 
@@ -606,12 +587,6 @@
             }
 
 
-            /*
-                If today's lunch
-                already happened,
-                go to tomorrow.
-            */
-
             if (now >= target) {
 
                 target.setDate(
@@ -619,9 +594,7 @@
                 );
 
 
-                if (
-                    target.getDay() === 3
-                ) {
+                if (target.getDay() === 3) {
 
                     target.setHours(
                         12,
@@ -653,15 +626,11 @@
 
         function updateCountdown() {
 
-            const now =
-                new Date();
+            const now = new Date();
 
-            const target =
-                getTargetTime();
+            const target = getTargetTime();
 
-
-            let difference =
-                target - now;
+            let difference = target - now;
 
 
             if (difference < 0) {
@@ -676,18 +645,6 @@
                     difference / 1000
                 );
 
-
-            /*
-                TOTAL HOURS
-
-                Instead of:
-
-                DAYS : HOURS : MINUTES : SECONDS
-
-                We use:
-
-                TOTAL HOURS : MINUTES : SECONDS
-            */
 
             const hours =
                 Math.floor(
@@ -782,7 +739,6 @@
                 const file =
                     backgroundImage.files[0];
 
-
                 if (!file) return;
 
 
@@ -806,7 +762,7 @@
 
 
         /* =========================
-           REMOVE BACKGROUND IMAGE
+           REMOVE IMAGE
            ========================= */
 
         removeImage.addEventListener(
@@ -851,7 +807,7 @@
 
 
         /* =========================
-           TEXT EFFECTS
+           TIMER EFFECTS
            ========================= */
 
         function updateTextEffects() {
@@ -876,25 +832,12 @@
 
 
             /*
-                OUTLINE
-
-                Applies to:
-
-                Lunch
-                Countdown
-                Next lunch
+                OUTLINE ONLY APPLIES
+                TO THE TIMER
             */
 
-            document.documentElement.style.setProperty(
-                "--outline-width",
-                outline + "px"
-            );
-
-
-            document.documentElement.style.setProperty(
-                "--outline-color",
-                outlineCol
-            );
+            countdown.style.webkitTextStroke =
+                `${outline}px ${outlineCol}`;
 
 
             let effects = [];
@@ -924,18 +867,22 @@
 
             if (effects.length === 0) {
 
-                effects.push("none");
+                countdown.style.textShadow =
+                    "none";
+
+            } else {
+
+                countdown.style.textShadow =
+                    effects.join(", ");
 
             }
 
-
-            document.documentElement.style.setProperty(
-                "--text-effect",
-                effects.join(", ")
-            );
-
         }
 
+
+        /* =========================
+           EFFECT CONTROLS
+           ========================= */
 
         outlineWidth.addEventListener(
             "input",
@@ -976,10 +923,6 @@
 
         updateCountdown();
 
-
-        /*
-            Update once every second.
-        */
 
         setInterval(
             updateCountdown,
