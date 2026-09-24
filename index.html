@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunch Countdown</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            background-color: #111111;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+
+            color: white;
+            font-family: Arial, sans-serif;
+
+            transition: background-color 0.3s;
+        }
+
+        #container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* All text effects apply to ALL text */
+        #title,
+        #countdown,
+        #target {
+            -webkit-text-stroke: var(--outline-width) var(--outline-color);
+            text-shadow: var(--text-effect);
+        }
+
+        #title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #countdown {
+            font-size: clamp(3rem, 10vw, 9rem);
+            font-weight: bold;
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+
+        #target {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            opacity: 1;
+        }
+
+        /* =========================
+           SETTINGS BUTTON
+           ========================= */
+
+        #settingsButton {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+
+            width: 50px;
+            height: 50px;
+
+            border: none;
+            border-radius: 50%;
+
+            background: rgba(0, 0, 0, 0.65);
+            color: white;
+
+            font-size: 24px;
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            transition:
+                transform 0.2s,
+                background 0.2s;
+        }
+
+        #settingsButton:hover {
+            transform: scale(1.08);
+            background: rgba(0, 0, 0, 0.85);
+        }
+
+        /* =========================
+           SETTINGS PANEL
+           ========================= */
+
+        #settingsPanel {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+
+            width: 320px;
+            max-width: calc(100vw - 40px);
+
+            padding: 18px;
+
+            background: rgba(20, 20, 20, 0.95);
+            color: white;
+
+            border-radius: 14px;
+
+            display: none;
+
+            box-shadow:
+                0 10px 35px rgba(0, 0, 0, 0.4);
+
+            max-height: calc(100vh - 110px);
+            overflow-y: auto;
+        }
+
+        #settingsPanel.open {
+            display: block;
+        }
+
+        #settingsPanel h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .control {
+            margin-bottom: 15px;
+        }
+
+        .control label {
+            display: block;
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 6px;
+        }
+
+        select {
+            width: 100%;
+            padding: 9px;
+
+            font-size: 15px;
+
+            border: none;
+            border-radius: 7px;
+        }
+
+        input[type="color"] {
+            width: 55px;
+            height: 38px;
+
+            border: none;
+            padding: 0;
+
+            cursor: pointer;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            font-size: 13px;
+        }
+
+        button.controlButton {
+            padding: 8px 12px;
+
+            border: none;
+            border-radius: 7px;
+
+            cursor: pointer;
+        }
+
+        .colorRow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* =========================
+           MOBILE
+           ========================= */
+
+        @media (max-width: 600px) {
+
+            #countdown {
+                white-space: normal;
+            }
+
+            #settingsPanel {
+                bottom: 80px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         MAIN COUNTDOWN
+         ========================= -->
+
+    <div id="container">
+
+        <div id="title">
+            Lunch
+        </div>
+
+        <div id="countdown">
+            00:00:00
+        </div>
+
+        <div id="target">
+            Next lunch:
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         SETTINGS BUTTON
+         ========================= -->
+
+    <button
+        id="settingsButton"
+        title="Settings"
+        aria-label="Open settings"
+    >
+        ✎
+    </button>
+
+
+    <!-- =========================
+         SETTINGS PANEL
+         ========================= -->
+
+    <div id="settingsPanel">
+
+        <h2>Settings</h2>
+
+
+        <!-- BACKGROUND COLOR -->
+
+        <div class="control">
+
+            <label>
+                Background Color
+            </label>
+
+            <div class="colorRow">
+
+                <input
+                    type="color"
+                    id="backgroundColor"
+                    value="#111111"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- BACKGROUND IMAGE -->
+
+        <div class="control">
+
+            <label>
+                Background Image
+            </label>
+
+            <input
+                type="file"
+                id="backgroundImage"
+                accept="image/*"
+            >
+
+            <br>
+            <br>
+
+            <button
+                class="controlButton"
+                id="removeImage"
+            >
+                Remove Image
+            </button>
+
+        </div>
+
+
+        <!-- FONT -->
+
+        <div class="control">
+
+            <label>
+                Font
+            </label>
+
+            <select id="fontSelect">
+
+                <option value="Arial, sans-serif">
+                    Arial
+                </option>
+
+                <option value="Verdana, sans-serif">
+                    Verdana
+                </option>
+
+                <option value="Tahoma, sans-serif">
+                    Tahoma
+                </option>
+
+                <option value="Trebuchet MS, sans-serif">
+                    Trebuchet MS
+                </option>
+
+                <option value="Georgia, serif">
+                    Georgia
+                </option>
+
+                <option value="Times New Roman, serif">
+                    Times New Roman
+                </option>
+
+                <option value="Courier New, monospace">
+                    Courier New
+                </option>
+
+                <option value="Lucida Console, monospace">
+                    Lucida Console
+                </option>
+
+                <option value="Impact, sans-serif">
+                    Impact
+                </option>
+
+                <option value="Comic Sans MS, cursive">
+                    Comic Sans MS
+                </option>
+
+                <option value="Brush Script MT, cursive">
+                    Brush Script
+                </option>
+
+                <option value="Palatino Linotype, serif">
+                    Palatino
+                </option>
+
+                <option value="Garamond, serif">
+                    Garamond
+                </option>
+
+                <option value="Franklin Gothic Medium, sans-serif">
+                    Franklin Gothic
+                </option>
+
+                <option value="Century Gothic, sans-serif">
+                    Century Gothic
+                </option>
+
+                <option value="Arial Black, sans-serif">
+                    Arial Black
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- TEXT COLOR -->
+
+        <div class="control">
+
+            <label>
+                Text Color
+            </label>
+
+            <input
+                type="color"
+                id="textColor"
+                value="#ffffff"
+            >
+
+        </div>
+
+
+        <!-- TEXT OUTLINE -->
+
+        <div class="control">
+
+            <label>
+                Text Outline
+            </label>
+
+            <input
+                type="range"
+                id="outlineWidth"
+                min="0"
+                max="10"
+                value="0"
+            >
+
+            <div class="colorRow">
+
+                <span>
+                    Color:
+                </span>
+
+                <input
+                    type="color"
+                    id="outlineColor"
+                    value="#000000"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- TEXT SHADOW -->
+
+        <div class="control">
+
+            <label>
+                Text Shadow
+            </label>
+
+            <input
+                type="range"
+                id="shadowSize"
+                min="0"
+                max="30"
+                value="0"
+            >
+
+            <div class="colorRow">
+
+                <span>
+                    Color:
+                </span>
+
+                <input
+                    type="color"
+                    id="shadowColor"
+                    value="#000000"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- TEXT GLOW -->
+
+        <div class="control">
+
+            <label>
+                Text Glow
+            </label>
+
+            <input
+                type="range"
+                id="glowSize"
+                min="0"
+                max="50"
+                value="0"
+            >
+
+            <div class="colorRow">
+
+                <span>
+                    Color:
+                </span>
+
+                <input
+                    type="color"
+                    id="glowColor"
+                    value="#ffffff"
+                >
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        /* =========================
+           ELEMENTS
+           ========================= */
+
+        const countdown =
+            document.getElementById("countdown");
+
+        const targetText =
+            document.getElementById("target");
+
+        const settingsButton =
+            document.getElementById("settingsButton");
+
+        const settingsPanel =
+            document.getElementById("settingsPanel");
+
+        const backgroundColor =
+            document.getElementById("backgroundColor");
+
+        const backgroundImage =
+            document.getElementById("backgroundImage");
+
+        const removeImage =
+            document.getElementById("removeImage");
+
+        const fontSelect =
+            document.getElementById("fontSelect");
+
+        const textColor =
+            document.getElementById("textColor");
+
+        const outlineWidth =
+            document.getElementById("outlineWidth");
+
+        const outlineColor =
+            document.getElementById("outlineColor");
+
+        const shadowSize =
+            document.getElementById("shadowSize");
+
+        const shadowColor =
+            document.getElementById("shadowColor");
+
+        const glowSize =
+            document.getElementById("glowSize");
+
+        const glowColor =
+            document.getElementById("glowColor");
+
+
+        /* =========================
+           SETTINGS OPEN / CLOSE
+           ========================= */
+
+        settingsButton.addEventListener(
+            "click",
+            () => {
+
+                settingsPanel.classList.toggle(
+                    "open"
+                );
+
+            }
+        );
+
+
+        /* =========================
+           GET NEXT LUNCH TIME
+           ========================= */
+
+        function getTargetTime() {
+
+            const now = new Date();
+
+            let target =
+                new Date(now);
+
+
+            /*
+                Wednesday = 3
+
+                Wednesday:
+                12:30 PM
+
+                Every other day:
+                12:08 PM
+            */
+
+            if (now.getDay() === 3) {
+
+                target.setHours(
+                    12,
+                    30,
+                    0,
+                    0
+                );
+
+            } else {
+
+                target.setHours(
+                    12,
+                    8,
+                    0,
+                    0
+                );
+
+            }
+
+
+            /*
+                If today's lunch
+                already happened,
+                go to tomorrow.
+            */
+
+            if (now >= target) {
+
+                target.setDate(
+                    target.getDate() + 1
+                );
+
+
+                if (
+                    target.getDay() === 3
+                ) {
+
+                    target.setHours(
+                        12,
+                        30,
+                        0,
+                        0
+                    );
+
+                } else {
+
+                    target.setHours(
+                        12,
+                        8,
+                        0,
+                        0
+                    );
+
+                }
+
+            }
+
+            return target;
+        }
+
+
+        /* =========================
+           UPDATE COUNTDOWN
+           ========================= */
+
+        function updateCountdown() {
+
+            const now =
+                new Date();
+
+            const target =
+                getTargetTime();
+
+
+            let difference =
+                target - now;
+
+
+            if (difference < 0) {
+
+                difference = 0;
+
+            }
+
+
+            const totalSeconds =
+                Math.floor(
+                    difference / 1000
+                );
+
+
+            /*
+                TOTAL HOURS
+
+                Instead of:
+
+                DAYS : HOURS : MINUTES : SECONDS
+
+                We use:
+
+                TOTAL HOURS : MINUTES : SECONDS
+            */
+
+            const hours =
+                Math.floor(
+                    totalSeconds / 3600
+                );
+
+
+            const minutes =
+                Math.floor(
+                    (totalSeconds % 3600) / 60
+                );
+
+
+            const seconds =
+                totalSeconds % 60;
+
+
+            countdown.textContent =
+
+                String(hours).padStart(
+                    2,
+                    "0"
+                )
+
+                + ":" +
+
+                String(minutes).padStart(
+                    2,
+                    "0"
+                )
+
+                + ":" +
+
+                String(seconds).padStart(
+                    2,
+                    "0"
+                );
+
+
+            targetText.textContent =
+
+                "Next lunch: " +
+
+                target.toLocaleDateString(
+                    [],
+                    {
+                        weekday: "long",
+                        month: "short",
+                        day: "numeric"
+                    }
+                )
+
+                + " at " +
+
+                target.toLocaleTimeString(
+                    [],
+                    {
+                        hour: "numeric",
+                        minute: "2-digit"
+                    }
+                );
+
+        }
+
+
+        /* =========================
+           BACKGROUND COLOR
+           ========================= */
+
+        backgroundColor.addEventListener(
+            "input",
+            () => {
+
+                document.body.style.backgroundColor =
+                    backgroundColor.value;
+
+                document.body.style.backgroundImage =
+                    "none";
+
+            }
+        );
+
+
+        /* =========================
+           BACKGROUND IMAGE
+           ========================= */
+
+        backgroundImage.addEventListener(
+            "change",
+            () => {
+
+                const file =
+                    backgroundImage.files[0];
+
+
+                if (!file) return;
+
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload =
+                    function(event) {
+
+                        document.body.style.backgroundImage =
+                            `url("${event.target.result}")`;
+
+                    };
+
+
+                reader.readAsDataURL(file);
+
+            }
+        );
+
+
+        /* =========================
+           REMOVE BACKGROUND IMAGE
+           ========================= */
+
+        removeImage.addEventListener(
+            "click",
+            () => {
+
+                document.body.style.backgroundImage =
+                    "none";
+
+            }
+        );
+
+
+        /* =========================
+           FONT
+           ========================= */
+
+        fontSelect.addEventListener(
+            "change",
+            () => {
+
+                document.body.style.fontFamily =
+                    fontSelect.value;
+
+            }
+        );
+
+
+        /* =========================
+           TEXT COLOR
+           ========================= */
+
+        textColor.addEventListener(
+            "input",
+            () => {
+
+                document.body.style.color =
+                    textColor.value;
+
+            }
+        );
+
+
+        /* =========================
+           TEXT EFFECTS
+           ========================= */
+
+        function updateTextEffects() {
+
+            const outline =
+                outlineWidth.value;
+
+            const outlineCol =
+                outlineColor.value;
+
+            const shadow =
+                shadowSize.value;
+
+            const shadowCol =
+                shadowColor.value;
+
+            const glow =
+                glowSize.value;
+
+            const glowCol =
+                glowColor.value;
+
+
+            /*
+                OUTLINE
+
+                Applies to:
+
+                Lunch
+                Countdown
+                Next lunch
+            */
+
+            document.documentElement.style.setProperty(
+                "--outline-width",
+                outline + "px"
+            );
+
+
+            document.documentElement.style.setProperty(
+                "--outline-color",
+                outlineCol
+            );
+
+
+            let effects = [];
+
+
+            /* SHADOW */
+
+            if (shadow > 0) {
+
+                effects.push(
+                    `${shadow}px ${shadow}px ${shadow}px ${shadowCol}`
+                );
+
+            }
+
+
+            /* GLOW */
+
+            if (glow > 0) {
+
+                effects.push(
+                    `0 0 ${glow}px ${glowCol}`
+                );
+
+            }
+
+
+            if (effects.length === 0) {
+
+                effects.push("none");
+
+            }
+
+
+            document.documentElement.style.setProperty(
+                "--text-effect",
+                effects.join(", ")
+            );
+
+        }
+
+
+        outlineWidth.addEventListener(
+            "input",
+            updateTextEffects
+        );
+
+        outlineColor.addEventListener(
+            "input",
+            updateTextEffects
+        );
+
+        shadowSize.addEventListener(
+            "input",
+            updateTextEffects
+        );
+
+        shadowColor.addEventListener(
+            "input",
+            updateTextEffects
+        );
+
+        glowSize.addEventListener(
+            "input",
+            updateTextEffects
+        );
+
+        glowColor.addEventListener(
+            "input",
+            updateTextEffects
+        );
+
+
+        /* =========================
+           START
+           ========================= */
+
+        updateTextEffects();
+
+        updateCountdown();
+
+
+        /*
+            Update once every second.
+        */
+
+        setInterval(
+            updateCountdown,
+            1000
+        );
+
+    </script>
+
+</body>
+</html>
